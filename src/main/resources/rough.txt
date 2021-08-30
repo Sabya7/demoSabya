@@ -1,0 +1,9 @@
+
+//                        .thenCompose(customerSignInResultApiHttpResponse ->
+//                                ctoolsHttpApiClient.withProjectKey(project)
+//                        .me().login().post(
+//                                        MyCustomerDraftBuilder.of()
+//                                                .email(customerDraft.getEmail())
+//                                                .password(customerDraft.getPassword())
+//                                                .build())
+//                                        .execute());

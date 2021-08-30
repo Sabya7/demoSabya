@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.5.2</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>org.valtech</groupId>
+    <artifactId>MarutPlatformBackendApp</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>PlatformApp</name>
+    <description>This app acts as a middle layer between Mobile app and CT,
+        also it handles the bulk imports from mobile app
+    </description>
+    <properties>
+        <java.version>8</java.version>
+        <commercetools.version>4.0.0</commercetools.version>
+        <okhttp3.version>4.9.0</okhttp3.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.commercetools.sdk</groupId>
+            <artifactId>commercetools-http-client</artifactId>
+            <version>${commercetools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.commercetools.sdk</groupId>
+            <artifactId>commercetools-sdk-java-api</artifactId>
+            <version>${commercetools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.commercetools.sdk</groupId>
+            <artifactId>commercetools-sdk-java-importapi</artifactId>
+            <version>${commercetools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.commercetools.sdk</groupId>
+            <artifactId>commercetools-sdk-java-ml</artifactId>
+            <version>${commercetools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>io.aexp.nodes.graphql</groupId>
+            <artifactId>nodes</artifactId>
+            <version>0.4.0-atlassian-hosted</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.5.10</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.5.1</version>
+        </dependency>
+
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>atlassian</id>
+            <url>https://packages.atlassian.com/maven-3rdparty/</url>
+        </repository>
+    </repositories>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
