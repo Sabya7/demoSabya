@@ -10,13 +10,14 @@ import com.commercetools.importapi.models.products.ProductImportBuilder;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.valtech.marutbackendapp.model.ProductImportModel;
 import org.valtech.marutbackendapp.util.GroupingCollector;
 import io.vrap.rmf.base.client.ApiHttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.ResourceUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
@@ -40,7 +41,7 @@ public class ProductImporterController {
     ImportSink importSink;
 
     //@RequestParam("csv") MultipartFile csv
-    @RequestMapping("/importProducts")
+    @PostMapping("/importProducts")
     public void importProducts() throws FileNotFoundException, ExecutionException, InterruptedException {
 
         //Step-1 : parse the CSV file.
@@ -88,7 +89,7 @@ public class ProductImporterController {
     }
 
     //This response object will have the details of all import operations performed on this import sink.
-    @RequestMapping("/queryProductImportOperations")
+    @GetMapping("/queryProductImportOperations")
     public ApiHttpResponse<ImportOperationPagedResponse> queryImportOperations() throws ExecutionException, InterruptedException {
 
         CompletableFuture<ApiHttpResponse<ImportOperationPagedResponse>> imoprtOperationResponse = ctoolsImportApiClient.withProjectKeyValue(project)

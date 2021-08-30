@@ -9,6 +9,7 @@ import com.commercetools.importapi.models.prices.PriceImportBuilder;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.valtech.marutbackendapp.model.PriceImportModel;
 import org.valtech.marutbackendapp.util.GroupingCollector;
 import io.vrap.rmf.base.client.ApiHttpResponse;
@@ -16,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
@@ -84,7 +84,7 @@ public class PriceImporterController {
     }
 
     //This response object will have the details of all import operations performed on this import sink.
-    @RequestMapping("/queryPriceImportOperations")
+    @GetMapping("/queryPriceImportOperations")
     public ApiHttpResponse<ImportOperationPagedResponse> queryImportOperations() throws ExecutionException, InterruptedException {
 
         CompletableFuture<ApiHttpResponse<ImportOperationPagedResponse>> imoprtOperationResponse = ctoolsImportApiClient.withProjectKeyValue(project)
