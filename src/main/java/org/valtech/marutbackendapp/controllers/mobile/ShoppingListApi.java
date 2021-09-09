@@ -14,19 +14,8 @@ import java.util.concurrent.ExecutionException;
 public class ShoppingListApi {
 
 
-
     @Autowired
     private ShoppingListService shoppingListService;
-
-//    @PostMapping("/createShoppingList")
-//    public CompletableFuture<ApiHttpResponse<ShoppingList>> createShoppingList(ShoppingListDraft shoppingListDraft) throws ExecutionException, InterruptedException {
-//        return shoppingListService.createShoppingList(shoppingListDraft);
-//    }
-
-//    @PostMapping("/setCustomer")
-//    public CompletableFuture<ApiHttpResponse<ShoppingList>> setCustomer(String id, String customerId) throws ExecutionException, InterruptedException {
-//       return shoppingListService.setCustomer(id,customerId);
-//    }
 
     @PostMapping("/addLineItem")
     public CompletableFuture<ShoppingListDao> addLineItem(String id, String SKU, Optional<Long> quantity)

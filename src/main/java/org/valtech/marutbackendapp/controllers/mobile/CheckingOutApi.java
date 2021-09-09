@@ -27,23 +27,6 @@ import java.util.stream.Collectors;
 @RestController
 public class CheckingOutApi {
 
-    //http client to connect to commercetools API
-    @Autowired
-    private ApiRoot ctoolsHttpApiClient;
-
-    //value for project name
-    @Value("${ct.project}")
-    private String project;
-
-    //autowired this to remove lineItems from shopping list once they are added to the cart.
-    @Autowired
-    ShoppingListApi shoppingListApi;
-
-    @Autowired
-    CustomerApi customerApi;
-
-    @Autowired
-    private CustomerService customerService;
 
     @Autowired
     CheckOutService checkOutService;

@@ -43,12 +43,6 @@ public class CheckOutService {
     private ApiRoot ctoolsHttpApiClient;
 
     @Autowired
-    LineItemRepository lineItemRepository;
-
-    @Autowired
-    ShoppingListRepository shoppingListRepository;
-
-    @Autowired
     CustomerRepository customerRepository;
 
     @Autowired
@@ -60,60 +54,41 @@ public class CheckOutService {
     @Autowired
     PushNotificationService pushNotificationService;
 
+    @Autowired
+    LineItemToCustomerMapperService lineItemToCustomerMapperService;
+
     @Async
-    public void lineItemsToCustomerMapper(List<BinaryData> body) throws JsonProcessingException, ExecutionException, InterruptedException {
+    public void processDiscountedLineItemsToCreateCart(List<BinaryData> body) throws ExecutionException, JsonProcessingException, InterruptedException {
 
-        HashMap<String,List<String>> shoppingListToListOfLineItemsMap
-                            = new HashMap<>();
-        for(BinaryData data : body)
-        {
-
-            String nodeString = data.toObject(JsonNode.class).get("updatedPrices").toString();
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JSR310Module());
-            ProductPriceDiscountsSetUpdatedPrice updatedPrice = mapper.readValue(nodeString, ProductPriceDiscountsSetUpdatedPrice.class);
-            String sku = updatedPrice.getSku();
-
-            LineItemDao lineItemDao = lineItemRepository.findBySku(sku);
-            List<String> shoppingListIds
-                    = shoppingListRepository.findByLineItemId(lineItemDao.getLineItemId());
-
-           for (String shoppingListId : shoppingListIds) {
-               List<String> list =
-                       shoppingListToListOfLineItemsMap.getOrDefault(shoppingListId,new ArrayList<>());
-               list.add(lineItemDao.getLineItemId());
-               shoppingListToListOfLineItemsMap.put(shoppingListId, list);
-           }
-
-        }
-
+        HashMap<String, List<String>> shoppingListToListOfLineItemsMap
+                = lineItemToCustomerMapperService.map(body);
         List<NotificationOutcome> notificationOutcomes
                 = createCartFromShoppingListLineItem(shoppingListToListOfLineItemsMap);
         System.out.println(notificationOutcomes);
+
     }
 
     private List<NotificationOutcome> createCartFromShoppingListLineItem(HashMap<String, List<String>> shoppingListToListOfLineItemsMap) throws ExecutionException, InterruptedException {
 
-       List<NotificationOutcome> notificationOutcomes = new ArrayList<>();
+        List<NotificationOutcome> notificationOutcomes = new ArrayList<>();
 
-       for (Map.Entry<String, List<String>> entry : shoppingListToListOfLineItemsMap.entrySet())
-       {
-          CustomerDao customerDao = customerRepository.findByShoppingListId(entry.getKey());
+        for (Map.Entry<String, List<String>> entry : shoppingListToListOfLineItemsMap.entrySet()) {
+            CustomerDao customerDao = customerRepository.findByShoppingListId(entry.getKey());
 
-          cartFromDiscountedItems(entry.getKey(),customerDao.getId(),entry.getValue())
-                  .thenCompose(cartResponse ->
-                  {
-                      try {
-                          notificationOutcomes.add( pushNotificationService
-                                  .sendPushNotification(customerDao.getFcmToken(),cartResponse));
-                      } catch (NotificationHubsException e) {
-                          e.printStackTrace();
-                      }
-                      return null;
-                  });
-       }
+            cartFromDiscountedItems(entry.getKey(), customerDao.getId(), entry.getValue())
+                    .thenCompose(cartResponse ->
+                    {
+                        try {
+                            notificationOutcomes.add(pushNotificationService
+                                    .sendPushNotification(customerDao.getFcmToken(), cartResponse));
+                        } catch (NotificationHubsException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    });
+        }
 
-       return notificationOutcomes;
+        return notificationOutcomes;
 
     }
 
@@ -135,12 +110,11 @@ public class CheckOutService {
 
         ArrayList<LineItemDraft> lineItemDrafts = new ArrayList<>();
 
-        for(ShoppingListLineItem listLineItem :listLineItems )
-        {
+        for (ShoppingListLineItem listLineItem : listLineItems) {
             lineItemDrafts.add(
                     LineItemDraftBuilder.of()
                             .variantId(listLineItem.getVariantId())
-                            .quantity((long)listLineItem.getQuantity())
+                            .quantity((long) listLineItem.getQuantity())
                             .build()
             );
             //Remove this listLineItem from shoppingList as well.
@@ -161,7 +135,7 @@ public class CheckOutService {
 
 
         Optional<Address> shippingAddress = customer.getAddresses().stream()
-                .filter( address -> address.getId().equals(customer.getDefaultShippingAddressId()))
+                .filter(address -> address.getId().equals(customer.getDefaultShippingAddressId()))
                 .findFirst();
 
         CartDraft cartDraft = CartDraftBuilder.of()

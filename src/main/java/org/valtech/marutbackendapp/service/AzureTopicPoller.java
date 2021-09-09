@@ -58,7 +58,7 @@ public class AzureTopicPoller {
                 public void run() {
                     try {
                         Thread.sleep(4500L);
-                        checkOutService.lineItemsToCustomerMapper(messageBatcher);
+                        checkOutService.processDiscountedLineItemsToCreateCart(messageBatcher);
                     } catch (InterruptedException | JsonProcessingException | ExecutionException e) {
                         e.printStackTrace();
                     }
