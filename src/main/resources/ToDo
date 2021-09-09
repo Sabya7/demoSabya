@@ -1,10 +1,9 @@
+//add support anonymous for customerDao.
+
 //change the input arg type in all importerControllers,
  so that the csv should be passed to us as a multipart file
-
-// remove business logic from controllers and put it in service classes.
-
-//integrate Auth0
 
 //handle exceptions in correct way.
 
 //write Unit tests
+

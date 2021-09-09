@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.valtech.marutbackendapp.dao.CustomerDao;
+import org.valtech.marutbackendapp.service.CustomerService;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -26,143 +29,49 @@ import java.util.concurrent.ExecutionException;
 @RestController
 public class CustomerApi {
 
-    //http client to connect to commercetools API
-    @Autowired
-    private ApiRoot ctoolsHttpApiClient;
 
-    //value for project name
-    @Value("${ct.project}")
-    private String project;
+    @Autowired
+    private CustomerService customerService;
 
     //signing up the customer
     @PostMapping("/createACustomer")
-    public ApiHttpResponse<CustomerSignInResult> createACustomer(@RequestBody CustomerDraft customerDraft)
-            throws ExecutionException, InterruptedException {
+    public CompletableFuture<CustomerDao> createACustomer(@RequestBody CustomerDraft customerDraft
+            ,@RequestParam String pnsHandle) {
 
+       return customerService.createCustomer(customerDraft,pnsHandle);
 
-        /*When the customer signs up we are using customer endpoint to create a new one,
-        * after that we immediately log in that customer to get the token.
-        * The login is done using /me/login/ endpoint.
-        */
-        CompletableFuture<ApiHttpResponse<CustomerSignInResult>> customerSignIn =
-                ctoolsHttpApiClient.withProjectKey(project)
-                        .customers()
-                        .post(customerDraft)
-                        .execute();
-
-        return customerSignIn.get();
     }
 
     @PostMapping("/updateFirstName")
-    public ApiHttpResponse<Customer> updateFirstName(String id, String firstName) throws ExecutionException, InterruptedException {
-        CustomerSetFirstNameAction custAction =
-                CustomerSetFirstNameActionBuilder.of().firstName(firstName).build();
-
-        CustomerUpdateAction customerUpdateAction = CustomerSetFirstNameAction.of()
-                .withCustomerSetFirstNameAction(action -> custAction);
-
-        return updateCustomer(customerUpdateAction,id).get();
+    public CompletableFuture<CustomerDao> updateFirstName(String id, String firstName) throws ExecutionException, InterruptedException {
+        return customerService.updateFirstName(id,firstName);
     }
 
     @PostMapping("/updateLastName")
-    public ApiHttpResponse<Customer> updateLastName(String id, String lastName) throws ExecutionException, InterruptedException {
-        CustomerSetLastNameAction custAction =
-                CustomerSetLastNameActionBuilder.of().lastName(lastName).build();
-
-        CustomerUpdateAction customerUpdateAction = CustomerSetLastNameAction.of()
-                .withCustomerSetLastNameAction(action -> custAction);
-
-        return updateCustomer(customerUpdateAction,id).get();
-
+    public CompletableFuture<CustomerDao> updateLastName(String id, String lastName) throws ExecutionException, InterruptedException {
+        return customerService.updateLastName(id,lastName);
     }
 
     @PostMapping("/addAddress")
-    public ApiHttpResponse<Customer> addAddress(String id, Address address) throws ExecutionException, InterruptedException {
-
-        CustomerAddAddressAction customerAddAddressAction =
-                CustomerAddAddressActionBuilder.of().address(address).build();
-
-        CustomerUpdateAction customerUpdateAction = CustomerAddAddressAction.of()
-                .withCustomerAddAddressAction(action -> customerAddAddressAction);
-
-        return updateCustomer(customerUpdateAction,id).get();
-
+    public CompletableFuture<ApiHttpResponse<Customer>> addAddress(String id, Address address) throws ExecutionException, InterruptedException {
+        return customerService.addAddress(id,address);
     }
 
     @PostMapping("/changeAddress")
-    public ApiHttpResponse<Customer> changeAddress(String id, String addressId, Address address) throws ExecutionException, InterruptedException {
-
-        CustomerChangeAddressAction customerChangeAddressAction =
-                CustomerChangeAddressActionBuilder.of().
-                        addressId(addressId).address(address).build();
-
-        CustomerUpdateAction customerUpdateAction = CustomerChangeAddressAction.of()
-                .withCustomerChangeAddressAction(action -> customerChangeAddressAction);
-
-        return updateCustomer(customerUpdateAction,id).get();
-
+    public CompletableFuture<ApiHttpResponse<Customer>> changeAddress(String id, String addressId, Address address) throws ExecutionException, InterruptedException {
+        return customerService.changeAddress(id,addressId,address);
     }
 
     @PostMapping("/removeAddress")
-    public ApiHttpResponse<Customer> removeAddress(String id, String addressId) throws ExecutionException, InterruptedException {
-
-        CustomerRemoveAddressAction customerRemoveAddressAction =
-                CustomerRemoveAddressActionBuilder.of().
-                        addressId(addressId).build();
-
-        CustomerUpdateAction customerUpdateAction = CustomerRemoveAddressAction.of()
-                .withCustomerRemoveAddressAction(action -> customerRemoveAddressAction);
-
-        return updateCustomer(customerUpdateAction,id).get();
-
+    public CompletableFuture<ApiHttpResponse<Customer>> removeAddress(String id, String addressId) throws ExecutionException, InterruptedException {
+        return customerService.removeAddress(id,addressId);
     }
 
     @PostMapping("/setDefaultShippingAddress")
-    public ApiHttpResponse<Customer> setShippingAddress(String id, String addressId) throws ExecutionException, InterruptedException {
+    public CompletableFuture<ApiHttpResponse<Customer>> setShippingAddress(String id, String addressId) throws ExecutionException, InterruptedException {
 
-        CustomerSetDefaultBillingAddressAction setDefaultBillingAddressAction =
-                CustomerSetDefaultBillingAddressActionBuilder.of()
-                        .addressId(addressId)
-                        .build();
+        return customerService.setDefaultShippingAddress(id,addressId);
 
-        CustomerUpdateAction customerUpdateAction = CustomerSetDefaultBillingAddressAction.of()
-                .withCustomerSetDefaultBillingAddressAction(action -> setDefaultBillingAddressAction);
-
-        return updateCustomer(customerUpdateAction,id).get();
-
-    }
-
-
-
-    private CompletableFuture<ApiHttpResponse<Customer>> updateCustomer
-            (CustomerUpdateAction customerUpdateAction,String id)
-    {
-              return retrieveCustomer(id)
-                       .thenCompose(
-                               customerApiHttpResponse ->
-                               ctoolsHttpApiClient.withProjectKey(project).customers().withId(id)
-                               .post(
-                                       CustomerUpdateBuilder.of()
-                                               .actions(customerUpdateAction)
-                                               .version(customerApiHttpResponse
-                                                       .getBody()
-                                                       .getVersion()
-                                               )
-                                               .build()
-                               )
-                               .execute()
-                       );
-    }
-
-
-    public CompletableFuture<ApiHttpResponse<Customer>> retrieveCustomer(String id)
-    {
-        return
-                ctoolsHttpApiClient.withProjectKey(project).
-                customers()
-                .withId(id)
-                .get()
-                .execute();
     }
 
 }

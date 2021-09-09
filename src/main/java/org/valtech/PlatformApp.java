@@ -1,17 +1,20 @@
 package org.valtech;
 
 
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.valtech.marutbackendapp.controllers.merchant.PriceImporterController;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.valtech.marutbackendapp.controllers.merchant.ProductImporterController;
 import org.valtech.marutbackendapp.controllers.merchant.ProductVariantImporterController;
+import org.valtech.marutbackendapp.service.AzureTopicPoller;
 
 import java.io.FileNotFoundException;
 import java.util.concurrent.*;
 
 @SpringBootApplication(scanBasePackages = "org.valtech")
+@EnableJpaRepositories(basePackages = "org.valtech")
 public class PlatformApp {
 
 	public static void main(String[] args) throws FileNotFoundException, ExecutionException, InterruptedException {
@@ -29,5 +32,6 @@ public class PlatformApp {
 //		Thread.sleep(5000);
 //		context.getBean(PriceImporterController.class).importPrices();
 //		Thread.sleep(5000);
+		context.getBean(AzureTopicPoller.class).pollMessagesFromServiceBusTopic();
 	}
 }

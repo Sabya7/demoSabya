@@ -1,132 +1,50 @@
 package org.valtech.marutbackendapp.controllers.mobile;
 
-import com.commercetools.api.client.ApiRoot;
-import com.commercetools.api.models.customer.CustomerResourceIdentifierBuilder;
-import com.commercetools.api.models.shopping_list.*;
-import io.vrap.rmf.base.client.ApiHttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.valtech.marutbackendapp.dao.ShoppingListDao;
+import org.valtech.marutbackendapp.service.ShoppingListService;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @RestController
 public class ShoppingListApi {
 
-    //http client to connect to commercetools API
+
+
     @Autowired
-    private ApiRoot ctoolsHttpApiClient;
+    private ShoppingListService shoppingListService;
 
-    //value for project name
-    @Value("${ct.project}")
-    private String project;
+//    @PostMapping("/createShoppingList")
+//    public CompletableFuture<ApiHttpResponse<ShoppingList>> createShoppingList(ShoppingListDraft shoppingListDraft) throws ExecutionException, InterruptedException {
+//        return shoppingListService.createShoppingList(shoppingListDraft);
+//    }
 
-    @PostMapping("/createShoppingList")
-    public ApiHttpResponse<ShoppingList> createShoppingList(ShoppingListDraft shoppingListDraft) throws ExecutionException, InterruptedException {
-        CompletableFuture<ApiHttpResponse<ShoppingList>> shoppingList =
-        ctoolsHttpApiClient.withProjectKey(project)
-                .shoppingLists()
-                .post(shoppingListDraft)
-                .execute();
-
-        return shoppingList.get();
-    }
-
-    @PostMapping("/setCustomer")
-    public ApiHttpResponse<ShoppingList> setCustomer(String id, String customerId) throws ExecutionException, InterruptedException {
-
-        ShoppingListSetCustomerAction shoppingListSetCustomerAction = ShoppingListSetCustomerActionBuilder
-                .of()
-                .customer(
-                        CustomerResourceIdentifierBuilder.of()
-                        .id(customerId)
-                        .build()
-                )
-                .build();
-
-        ShoppingListUpdateAction shoppingListUpdateAction =
-                ShoppingListSetCustomerAction.of()
-                        .withShoppingListSetCustomerAction(action -> shoppingListSetCustomerAction);
-
-        return updateShoppingList(shoppingListUpdateAction,id).get();
-
-    }
+//    @PostMapping("/setCustomer")
+//    public CompletableFuture<ApiHttpResponse<ShoppingList>> setCustomer(String id, String customerId) throws ExecutionException, InterruptedException {
+//       return shoppingListService.setCustomer(id,customerId);
+//    }
 
     @PostMapping("/addLineItem")
-    public ApiHttpResponse<ShoppingList> addLineItem(String id, String SKU) throws ExecutionException, InterruptedException {
-
-        ShoppingListAddLineItemAction listAddLineItemAction = ShoppingListAddLineItemActionBuilder.of()
-                .sku(SKU)
-                .build();
-
-        ShoppingListUpdateAction shoppingListUpdateAction =
-                ShoppingListAddLineItemAction.of()
-                        .withShoppingListAddLineItemAction(action -> listAddLineItemAction);
-
-        return updateShoppingList(shoppingListUpdateAction,id).get();
-
+    public CompletableFuture<ShoppingListDao> addLineItem(String id, String SKU, Optional<Long> quantity)
+            throws ExecutionException, InterruptedException {
+        return shoppingListService.addLineItem(id,SKU,quantity);
     }
 
     @PostMapping("/changeLineItemQuantity")
-    public ApiHttpResponse<ShoppingList> changeLineItemQuantity
+    public CompletableFuture<ShoppingListDao> changeLineItemQuantity
             (String id,String lineItemId, Long quantity) throws ExecutionException, InterruptedException {
-
-        ShoppingListChangeLineItemQuantityAction changeLineItemQuantityAction =
-                ShoppingListChangeLineItemQuantityActionBuilder.of()
-                        .quantity(quantity)
-                        .lineItemId(lineItemId)
-                        .build();
-        ShoppingListUpdateAction shoppingListUpdateAction = ShoppingListChangeLineItemQuantityAction
-                .of().withShoppingListChangeLineItemQuantityAction(action -> changeLineItemQuantityAction);
-
-        return updateShoppingList(shoppingListUpdateAction,id).get();
-
+        return shoppingListService.changeLineItemQuantity(id,lineItemId,quantity);
     }
 
     @PostMapping("/removeLineItem")
-    public ApiHttpResponse<ShoppingList> removeLineItem
+    public CompletableFuture<Void> removeLineItem
             (String id,String lineItemId, Long quantity) throws ExecutionException, InterruptedException {
-
-        ShoppingListRemoveLineItemAction shoppingListRemoveLineItemAction =
-                ShoppingListRemoveLineItemActionBuilder.of()
-                        .quantity(quantity)
-                        .lineItemId(lineItemId)
-                        .build();
-        ShoppingListUpdateAction shoppingListUpdateAction = ShoppingListRemoveLineItemAction
-                .of().withShoppingListRemoveLineItemAction(action -> shoppingListRemoveLineItemAction);
-
-        return updateShoppingList(shoppingListUpdateAction,id).get();
+        return shoppingListService.removeLineItem(id,lineItemId,quantity);
     }
 
-    private CompletableFuture<ApiHttpResponse<ShoppingList>> updateShoppingList
-            (ShoppingListUpdateAction shoppingListUpdateAction, String id)
-    {
-        return retrieveShoppingList(id)
-                .thenCompose(
-                        shoppingListApiHttpResponse ->
-                                ctoolsHttpApiClient.withProjectKey(project).shoppingLists().withId(id)
-                                        .post(
-                                                ShoppingListUpdateBuilder.of()
-                                                        .actions(shoppingListUpdateAction)
-                                                        .version(shoppingListApiHttpResponse
-                                                                .getBody()
-                                                                .getVersion()
-                                                        )
-                                                        .build()
-                                        )
-                                        .execute()
-                );
-    }
 
-    private CompletableFuture<ApiHttpResponse<ShoppingList>> retrieveShoppingList(String id)
-    {
-        return
-                ctoolsHttpApiClient.withProjectKey(project)
-                        .shoppingLists()
-                        .withId(id)
-                        .get()
-                        .execute();
-    }
 }

@@ -10,6 +10,7 @@ import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.valtech.marutbackendapp.model.PriceImportModel;
 import org.valtech.marutbackendapp.util.GroupingCollector;
 import io.vrap.rmf.base.client.ApiHttpResponse;
@@ -27,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @RestController
+@RequestMapping("/vendor")
 public class PriceImporterController {
 
     @Autowired
@@ -85,7 +87,7 @@ public class PriceImporterController {
 
     //This response object will have the details of all import operations performed on this import sink.
     @GetMapping("/queryPriceImportOperations")
-    public ApiHttpResponse<ImportOperationPagedResponse> queryImportOperations() throws ExecutionException, InterruptedException {
+    public CompletableFuture<ApiHttpResponse<ImportOperationPagedResponse>> queryImportOperations() throws ExecutionException, InterruptedException {
 
         CompletableFuture<ApiHttpResponse<ImportOperationPagedResponse>> imoprtOperationResponse = ctoolsImportApiClient.withProjectKeyValue(project)
                 .prices()
@@ -93,7 +95,7 @@ public class PriceImporterController {
                 .importOperations()
                 .get().withLimit(10000.0).execute();
 
-        return imoprtOperationResponse.get();
+        return imoprtOperationResponse;
     }
 
 }

@@ -57,10 +57,25 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>io.aexp.nodes.graphql</groupId>
@@ -92,6 +107,45 @@
             <artifactId>opencsv</artifactId>
             <version>5.5.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-messaging-servicebus</artifactId>
+            <version>7.3.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-core</artifactId>
+            <version>1.19.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.windowsazure/Notification-Hubs-java-sdk -->
+        <dependency>
+            <groupId>com.windowsazure</groupId>
+            <artifactId>Notification-Hubs-java-sdk</artifactId>
+            <version>0.4.2</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>com.jsoniter</groupId>-->
+<!--            <artifactId>jsoniter</artifactId>-->
+<!--            <version>0.9.19</version>-->
+<!--        </dependency>-->
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-blackbird -->
+<!--        <dependency>-->
+<!--            <groupId>com.fasterxml.jackson.module</groupId>-->
+<!--            <artifactId>jackson-module-blackbird</artifactId>-->
+<!--        </dependency>-->
+
+
 
     </dependencies>
 

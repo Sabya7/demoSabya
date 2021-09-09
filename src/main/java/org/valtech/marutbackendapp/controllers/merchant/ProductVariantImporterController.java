@@ -11,6 +11,7 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.valtech.marutbackendapp.model.ProductVariantImportModel;
 import org.valtech.marutbackendapp.util.GroupingCollector;
 import io.vrap.rmf.base.client.ApiHttpResponse;
@@ -27,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @RestController
+@RequestMapping("/vendor")
 public class ProductVariantImporterController {
 
     @Autowired
@@ -86,7 +88,7 @@ public class ProductVariantImporterController {
 
     //This response object will have the details of all import operations performed on this import sink.
     @GetMapping("/queryProductVariantImportOperations")
-    public ApiHttpResponse<ImportOperationPagedResponse> queryImportOperations() throws ExecutionException, InterruptedException {
+    public CompletableFuture<ApiHttpResponse<ImportOperationPagedResponse>> queryImportOperations() throws ExecutionException, InterruptedException {
 
         CompletableFuture<ApiHttpResponse<ImportOperationPagedResponse>> imoprtOperationResponse = ctoolsImportApiClient.withProjectKeyValue(project)
                 .productVariants()
@@ -94,7 +96,7 @@ public class ProductVariantImporterController {
                 .importOperations()
                 .get().withLimit(10000.0).execute();
 
-        return imoprtOperationResponse.get();
+        return imoprtOperationResponse;
     }
 
 

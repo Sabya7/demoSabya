@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.valtech.marutbackendapp.service.CheckOutService;
+import org.valtech.marutbackendapp.service.CustomerService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,91 +42,22 @@ public class CheckingOutApi {
     @Autowired
     CustomerApi customerApi;
 
+    @Autowired
+    private CustomerService customerService;
+
+    @Autowired
+    CheckOutService checkOutService;
+
     @PostMapping("/cartFromDiscountedItems")
-    public ApiHttpResponse<Cart> cartFromDiscountedItems(String shoppingListId, String customerId,
-                                                         List<String> lineItemIds) throws ExecutionException, InterruptedException {
-
-         //Step - 1: Create Array of LineItems from array of LineItem IDs
-
-        //fetch all the lineItems in shopping list and filter the discounted lineItems.
-      List<ShoppingListLineItem> listLineItems =
-              ctoolsHttpApiClient.withProjectKey(project)
-                           .shoppingLists()
-                           .withId(shoppingListId)
-                           .get()
-                           .execute()
-                           .get().getBody().getLineItems()
-                           .stream()
-                           .filter(listLineItem -> lineItemIds.contains(listLineItem.getId()))
-                           .collect(Collectors.toList());
-
-       ArrayList<LineItemDraft> lineItemDrafts = new ArrayList<>();
-
-        for(ShoppingListLineItem listLineItem :listLineItems )
-        {
-              lineItemDrafts.add(
-                      LineItemDraftBuilder.of()
-                              .variantId(listLineItem.getVariantId())
-                              .quantity((long)listLineItem.getQuantity())
-                              .build()
-              );
-              //Remove this listLineItem from shoppingList as well.
-            shoppingListApi.removeLineItem(shoppingListId,
-                    listLineItem.getId(), Long.valueOf(listLineItem.getQuantity()));
-        }
-
-         //Step-2 : Create a cart.
-        /*
-        * Here, currency is hard-coded, but logic needs to be added
-        * so that it can be determined from customer's country.
-        * */
-
-        Customer customer =
-                 customerApi.retrieveCustomer(customerId)
-                .get()
-                .getBody();
-
-
-        Optional<Address> shippingAddress = customer.getAddresses().stream()
-                .filter( address -> address.getId().equals(customer.getDefaultShippingAddressId()))
-                .findFirst();
-
-        CartDraft cartDraft = CartDraftBuilder.of()
-                .currency("USD")
-                .customerId(customerId)
-                .lineItems(lineItemDrafts)
-                .shippingAddress(shippingAddress.orElseGet(AddressImpl::new)) // will refactor this
-                .build();
-
-        CompletableFuture<ApiHttpResponse<Cart>> cartResponse = ctoolsHttpApiClient
-                .withProjectKey(project)
-                .carts()
-                .post(cartDraft)
-                .execute();
-
-
-
-        return cartResponse.get();
+    public CompletableFuture<ApiHttpResponse<Cart>> cartFromDiscountedItems(String shoppingListId, String customerId,
+                                                                            List<String> lineItemIds) throws ExecutionException, InterruptedException {
+      return checkOutService.cartFromDiscountedItems(shoppingListId,customerId,lineItemIds);
     }
 
     @PostMapping("/checkOut")
-    public ApiHttpResponse<Order> checkOut(String cartId) throws ExecutionException, InterruptedException {
+    public CompletableFuture<ApiHttpResponse<Order>> checkOut(String cartId) throws ExecutionException, InterruptedException {
 
-        OrderFromCartDraft orderFromCartDraft = OrderFromCartDraftBuilder.of()
-                .cart(
-                        CartResourceIdentifierBuilder.of()
-                        .id(cartId)
-                        .build()
-                ).version(
-                        ctoolsHttpApiClient.withProjectKey(project).carts()
-                        .withId(cartId)
-                        .get().execute()
-                        .get().getBody().getVersion()
-                ).build();
-
-       return ctoolsHttpApiClient.withProjectKey(project).orders()
-                .post(orderFromCartDraft)
-                .execute().get();
+        return checkOutService.checkOut(cartId);
     }
 
 }
