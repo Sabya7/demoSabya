@@ -38,4 +38,23 @@ public class PushNotificationService {
         return hub.sendNotification(notification);
 
     }
+
+    wallet resource{
+        version : long
+    }
+
+    one of the thread will get access,
+    {
+        update action : inc wallet amount by x rupees
+            version 9L
+    }
+
+    latest version ==9
+
+    updation
+
+    version =10;
+
+
+
 }
